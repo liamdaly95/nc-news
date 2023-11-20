@@ -1,4 +1,4 @@
-const { selecTopics, selectArticleById, readDocumentation } = require("../models/models");
+const { selecTopics, selectArticleById, readDocumentation, selectArticles } = require("../models/models");
 
 exports.getTopics = (req, res, next) => {
   selecTopics()
@@ -17,9 +17,18 @@ exports.getArticleById = (req, res, next) => {
     .catch(next);
 };
 
-exports.getDocumentation = (req, res, next) => {
-    readDocumentation().then((endpoints) => {
-        res.status(200).send({endpoints})
+exports.getArticles = (req, res, next) => {
+  selectArticles()
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
-    .catch(next)
-}
+    .catch(next);
+};
+
+exports.getDocumentation = (req, res, next) => {
+  readDocumentation()
+    .then((endpoints) => {
+      res.status(200).send({ endpoints });
+    })
+    .catch(next);
+};
