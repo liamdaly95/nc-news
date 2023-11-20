@@ -1,5 +1,4 @@
 exports.handlePsqlErrors = (err, req, res, next) => {
-    console.log(err.code)
   const validErrors = ["22P02"];
   if (validErrors.includes(err.code)) {
     res.status(400).send({ msg: "bad request" });
