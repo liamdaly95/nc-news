@@ -7,11 +7,14 @@ const { topicData, userData, articleData, commentData } = require("../db/data/te
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
 
-describe("GET from non-existent endpoint", () => {
+describe("ANY not a path", () => {
     test("404: sends an appropriate status and error message when given a non-existent endpoint", () => {
       return request(app)
-        .get("/api")
+        .get("/notapath")
         .expect(404)
+        .then(({body}) => {
+          expect(body.msg).toBe("path not found")
+        })
     });
   });
 
