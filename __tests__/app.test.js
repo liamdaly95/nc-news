@@ -94,7 +94,7 @@ describe("GET /api", () => {
 });
 
 describe("GET /api/articles", () => {
-  test.only("200: sends an array of articles to the client with the appropriate fields (no body field)", () => {
+  test("200: sends an array of articles to the client with the appropriate fields (no body field)", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -115,7 +115,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test.only("the comment count field sums up the correct number of comments for the article", () => {
+  test("the comment count field sums up the correct number of comments for the article", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -126,7 +126,7 @@ describe("GET /api/articles", () => {
         expect(body.articles[index].comment_count).toBe("11");
       });
   });
-  test.only("articles should be sorted by date in descending order", () => {
+  test("articles should be sorted by date in descending order", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
