@@ -1,3 +1,7 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+To run this project, two environment variable files need to be setup in the root directory. 
+
+The first should be named ".env.development" and include the line "PGDATABASE=nc_news".
+
+The second should be named ".env.test" and include the line "PGDATABASE=nc_news_test".
