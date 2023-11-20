@@ -3,6 +3,8 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const request = require("supertest");
 const { topicData, userData, articleData, commentData } = require("../db/data/test-data/index");
+const fs = require("fs/promises")
+const endpoints = require("../endpoints.json")
 
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
@@ -70,3 +72,23 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api", () => {
+  test('200: should respond with an object describing all the API endpoints', () => {
+    return request(app)
+    .get("/api")
+    .expect(200)
+    .then(({body}) => {
+      const numberOfRoutes = Object.keys(endpoints).length
+      expect(Object.keys(body.endpoints)).toHaveLength(numberOfRoutes)
+      for (const endpoint in body.endpoints) {
+        expect(body.endpoints[endpoint]).toMatchObject({
+          description: expect.any(String),
+          queries: expect.any(Array),
+          requestBodyFormat: expect.any(Object),
+          exampleResponse: expect.any(Object)
+        })
+      }
+    })
+  });
+})
