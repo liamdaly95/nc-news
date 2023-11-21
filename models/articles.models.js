@@ -22,10 +22,14 @@ exports.selectArticles = () => {
     });
 };
 
-exports.updateVotes = (article_id, inc_votes) =>  {
-  const values = [inc_votes, article_id]
-  console.log(values)
-  return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,values).then(({rows: articles}) => {
-    return articles[0];
-  })
-}
+exports.updateVotes = (article_id, inc_votes) => {
+  const values = [inc_votes, article_id];
+  return db
+    .query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`, values)
+    .then(({ rows: articles }) => {
+      if (!articles.length) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      }
+      return articles[0];
+    });
+};
