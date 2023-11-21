@@ -15,9 +15,7 @@ exports.getComments = (req, res, next) => {
 exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
   const { body, username: author } = req.body;
-  // if (!author) {
-  //   Promise.reject({ status: 400, msg: "bad request" }).catch(next);
-  // }
+
   insertComment(body, author, article_id)
     .then((comment) => {
       res.status(201).send({ comment });
