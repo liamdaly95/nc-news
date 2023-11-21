@@ -15,3 +15,12 @@ const values = [body, author, article_id, 0]
     return comment[0];
   })
 }
+
+exports.removeComment = (comment_id) => {
+  return db.query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`,[comment_id]).then(({rows: comments}) => {
+    if(!comments.length) {
+      return Promise.reject({status: 404, msg: "not found"})
+    }
+    return comments[0];
+  })
+}

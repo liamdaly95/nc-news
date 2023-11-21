@@ -3,7 +3,7 @@ const { getArticleById, getArticles } = require("../controllers/articles.control
 const { handleServerErrors, handleCustomErrors, handlePsqlErrors } = require("../error-handling/error-handling");
 const { getTopics } = require("../controllers/topics.controllers");
 const { getDocumentation } = require("../controllers/documentation.controllers");
-const { getComments, postComment } = require("../controllers/comments.controllers");
+const { getComments, postComment, deleteComment } = require("../controllers/comments.controllers");
 
 const app = express();
 app.use(express.json())
@@ -15,6 +15,10 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
 
 app.post("/api/articles/:article_id/comments", postComment);
+
+
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "path not found" });
