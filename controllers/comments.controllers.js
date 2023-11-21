@@ -1,4 +1,4 @@
-const { selectComments } = require("../models/comments.models");
+const { selectComments, insertComment } = require("../models/comments.models");
 const { checkExists } = require("../models/utils.models");
 
 exports.getComments = (req, res, next) => {
@@ -8,6 +8,17 @@ exports.getComments = (req, res, next) => {
     .then((resolvedPromises) => {
       const comments = resolvedPromises[0];
       res.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  const { article_id } = req.params;
+  const { body, username: author } = req.body;
+
+  insertComment(body, author, article_id)
+    .then((comment) => {
+      res.status(201).send({ comment });
     })
     .catch(next);
 };
