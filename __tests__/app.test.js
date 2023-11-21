@@ -3,8 +3,8 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const request = require("supertest");
 const { topicData, userData, articleData, commentData } = require("../db/data/test-data/index");
-const fs = require("fs/promises")
-const endpoints = require("../endpoints.json")
+const endpoints = require("../endpoints.json");
+const sorted = require("jest-sorted")
 
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
@@ -74,21 +74,64 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api", () => {
-  test('200: should respond with an object describing all the API endpoints', () => {
+  test("200: should respond with an object describing all the API endpoints", () => {
     return request(app)
-    .get("/api")
-    .expect(200)
-    .then(({body}) => {
-      const numberOfRoutes = Object.keys(endpoints).length
-      expect(Object.keys(body.endpoints)).toHaveLength(numberOfRoutes)
-      for (const endpoint in body.endpoints) {
-        expect(body.endpoints[endpoint]).toMatchObject({
-          description: expect.any(String),
-          queries: expect.any(Array),
-          requestBodyFormat: expect.any(Object),
-          exampleResponse: expect.any(Object)
-        })
-      }
-    })
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        const numberOfRoutes = Object.keys(endpoints).length;
+        expect(Object.keys(body.endpoints)).toHaveLength(numberOfRoutes);
+        for (const endpoint in body.endpoints) {
+          expect(body.endpoints[endpoint]).toMatchObject({
+            description: expect.any(String),
+            queries: expect.any(Array),
+            requestBodyFormat: expect.any(Object),
+            exampleResponse: expect.any(Object),
+          });
+        }
+      });
   });
-})
+});
+
+describe("GET /api/articles", () => {
+  test("200: sends an array of articles to the client with the appropriate fields (no body field)", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(13);
+        body.articles.forEach((article) => {
+          expect(article.body).toBe(undefined);
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(String),
+          });
+        });
+      });
+  });
+  test("the comment count field sums up the correct number of comments for the article", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const index = body.articles.findIndex((article) => {
+          return article.article_id === 1;
+        });
+        expect(body.articles[index].comment_count).toBe("11");
+      });
+  });
+  test("articles should be sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+});
