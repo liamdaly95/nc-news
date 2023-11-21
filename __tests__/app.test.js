@@ -327,6 +327,21 @@ describe("PATCH /api/articles/:article_id", () => {
   })
 });
 
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the comment with the associated comment_id", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("404: returns a not found error if comment_id is valid but does not exist", () => {
+    return request(app).delete("/api/comments/100").expect(404).then(({body}) => {
+      expect(body.msg).toBe("not found");
+    });
+  });
+  test("400: returns a bad request error if comment_id is not valid", () => {
+    return request(app).delete("/api/comments/notNumber").expect(400).then(({body}) => {
+      expect(body.msg).toBe("bad request");
+    });
+  });
+});
 describe("GET /api/users", () => {
   test("200: should return array of all user objects", () => {
     return request(app)
