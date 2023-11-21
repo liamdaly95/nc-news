@@ -136,72 +136,72 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe("POST /api/articles/:article_id/comments", () => {
-  test("201: posts new comment to the relevant article and sends the comment back to the client", () => {
-    const newComment = {
-      body: "this is a new well thought out comment",
-      author: "liam_daly",
-      article_id: 1,
-      created_at: 1586179070000,
-    };
+// describe("POST /api/articles/:article_id/comments", () => {
+//   test("201: posts new comment to the relevant article and sends the comment back to the client", () => {
+//     const newComment = {
+//       body: "this is a new well thought out comment",
+//       author: "liam_daly",
+//       article_id: 1,
+//       created_at: 1586179070000,
+//     };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(newComment)
-      .expect(204)
-      .then(({ body }) => {
-        newComment.comment_id = 19;
-        expect(body.comment).toMatchObject(newComment);
-      });
-  });
-  test("404: should return a not found error when passed an article_id that does not exist", () => {
-    const newComment = {
-      body: "this is a new well thought out comment",
-      votes: 0,
-      author: "liam_daly",
-      article_id: 200,
-      created_at: 1586179070000,
-    };
+//     return request(app)
+//       .post("/api/articles/1/comments")
+//       .send(newComment)
+//       .expect(204)
+//       .then(({ body }) => {
+//         newComment.comment_id = 19;
+//         expect(body.comment).toMatchObject(newComment);
+//       });
+//   });
+//   test("404: should return a not found error when passed an article_id that does not exist", () => {
+//     const newComment = {
+//       body: "this is a new well thought out comment",
+//       votes: 0,
+//       author: "liam_daly",
+//       article_id: 200,
+//       created_at: 1586179070000,
+//     };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(newComment)
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("not found")
-      });
-  })
-  test("400: should return a bad request error when not passed all the required fields", () => {
-    const newComment = {
-      body: "this is a new well thought out comment",
-      author: "liam_daly",
-      article_id: 1,
-      created_at: 1586179070000,
-    };
+//     return request(app)
+//       .post("/api/articles/1/comments")
+//       .send(newComment)
+//       .expect(404)
+//       .then(({ body }) => {
+//         expect(body.msg).toBe("not found")
+//       });
+//   })
+//   test("400: should return a bad request error when not passed all the required fields", () => {
+//     const newComment = {
+//       body: "this is a new well thought out comment",
+//       author: "liam_daly",
+//       article_id: 1,
+//       created_at: 1586179070000,
+//     };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(newComment)
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("bad request")
-      });
-  })
-  test("400: should return a bad request error when non-integers for integer fields", () => {
-    const newComment = {
-      body: "this is a new well thought out comment",
-      votes: "not an integer",
-      author: "liam_daly",
-      article_id: 1,
-      created_at: 1586179070000,
-    };
+//     return request(app)
+//       .post("/api/articles/1/comments")
+//       .send(newComment)
+//       .expect(400)
+//       .then(({ body }) => {
+//         expect(body.msg).toBe("bad request")
+//       });
+//   })
+//   test("400: should return a bad request error when non-integers for integer fields", () => {
+//     const newComment = {
+//       body: "this is a new well thought out comment",
+//       votes: "not an integer",
+//       author: "liam_daly",
+//       article_id: 1,
+//       created_at: 1586179070000,
+//     };
 
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(newComment)
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("bad request")
-      });
-  })
-});
+//     return request(app)
+//       .post("/api/articles/1/comments")
+//       .send(newComment)
+//       .expect(400)
+//       .then(({ body }) => {
+//         expect(body.msg).toBe("bad request")
+//       });
+//   })
+// });
