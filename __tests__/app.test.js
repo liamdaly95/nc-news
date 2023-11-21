@@ -348,46 +348,63 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+describe("GET /api/users", () => {
+  test("200: should return array of all user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users).toHaveLength(4);
+        body.users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
+      });
+  });
+});
 
-// describe("GET /api/articles?topic=", () => {
-//   test("200: responds with array of articles all with the queried topic", () => {
-//     const topic = "mitch";
-//     return request(app)
-//       .get(`/api/articles?topic=${topic}`)
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.articles).toHaveLength(12);
-//         body.articles.forEach((article) => {
-//           expect(article.body).toBe(undefined);
-//           expect(article).toMatchObject({
-//             author: expect.any(String),
-//             title: expect.any(String),
-//             article_id: expect.any(Number),
-//             topic: topic,
-//             created_at: expect.any(String),
-//             votes: expect.any(Number),
-//             article_img_url: expect.any(String),
-//             comment_count: expect.any(String),
-//           });
-//         });
-//       });
-//   });
-//   test("200: responds with an empty array if queried with a topic which exists but there are no articles with that topic",() => {
-//     const topic = "paper";
-//     return request(app)
-//       .get(`/api/articles?topic=${topic}`)
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.articles).toEqual([]);
-//       });
-//   })
-//   test("400: responds with a not found error message if queried with a non-existent topic", () => {
-//     const topic = "scissors";
-//     return request(app)
-//       .get(`/api/articles?topic=${topic}`)
-//       .expect(200)
-//       .then(({ body }) => {
-//         expect(body.msg).toBe("not found");
-//       });
-//   })
-// });
+describe("GET /api/articles?topic=", () => {
+  test("200: responds with array of articles all with the queried topic", () => {
+    const topic = "mitch";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(12);
+        body.articles.forEach((article) => {
+          expect(article.body).toBe(undefined);
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: topic,
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(String),
+          });
+        });
+      });
+  });
+  test("200: responds with an empty array if queried with a topic which exists but there are no articles with that topic",() => {
+    const topic = "paper";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  })
+  test("404: responds with a not found error message if queried with a non-existent topic", () => {
+    const topic = "scissors";
+    return request(app)
+      .get(`/api/articles?topic=${topic}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  })
+});
