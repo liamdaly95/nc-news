@@ -277,11 +277,11 @@ describe("POST /api/articles/:article_id/comments", () => {
 });
 
 describe("PATCH /api/articles/:article_id", () => {
-  test("202: updates the current vote by incrementing the value provided in the request", () => {
+  test("200: updates the current vote by incrementing the value provided in the request", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: -179 })
-      .expect(202)
+      .expect(200)
       .then(({ body }) => {
         expect(body.article).toMatchObject({
           article_id: 1,
@@ -316,7 +316,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.msg).toBe("bad request");
       });
   })
-  test("400: responds with a not found error if article_id is valid but does not exist", () => {
+  test("404: responds with a not found error if article_id is valid but does not exist", () => {
     return request(app)
       .patch("/api/articles/200")
       .send({ inc_votes: 179 })
