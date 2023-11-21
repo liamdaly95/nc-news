@@ -1,8 +1,12 @@
 exports.handlePsqlErrors = (err, req, res, next) => {
-  const validErrors = ["22P02"];
-  if (validErrors.includes(err.code)) {
+  const badRequestErrors = ["22P02", "23502"];
+  const notFoundErrors = ["23503"]
+  if (badRequestErrors.includes(err.code)) {
     res.status(400).send({ msg: "bad request" });
-  } else {
+  } else if (notFoundErrors.includes(err.code)) {
+    res.status(404).send({msg: "not found"})
+  }
+  else {
     next(err);
   }
 };
