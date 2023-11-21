@@ -292,12 +292,12 @@ describe("PATCH /api/articles/:article_id", () => {
   test("400: responds with a bad request error if inc_votes property is missing from request", () => {
     return request(app)
       .patch("/api/articles/1")
-      .send({  })
+      .send({})
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
       });
-  })
+  });
   test("400: responds with a bad request error if inc_votes value is not a number", () => {
     return request(app)
       .patch("/api/articles/1")
@@ -306,7 +306,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
       });
-  })
+  });
   test("400: responds with a bad request error if article_id is not a number", () => {
     return request(app)
       .patch("/api/articles/notNumber")
@@ -315,7 +315,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
       });
-  })
+  });
   test("404: responds with a not found error if article_id is valid but does not exist", () => {
     return request(app)
       .patch("/api/articles/200")
@@ -324,7 +324,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.msg).toBe("not found");
       });
-  })
+  });
 });
 
 describe("DELETE /api/comments/:comment_id", () => {
@@ -332,13 +332,62 @@ describe("DELETE /api/comments/:comment_id", () => {
     return request(app).delete("/api/comments/1").expect(204);
   });
   test("404: returns a not found error if comment_id is valid but does not exist", () => {
-    return request(app).delete("/api/comments/100").expect(404).then(({body}) => {
-      expect(body.msg).toBe("not found");
-    });
+    return request(app)
+      .delete("/api/comments/100")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
   });
   test("400: returns a bad request error if comment_id is not valid", () => {
-    return request(app).delete("/api/comments/notNumber").expect(400).then(({body}) => {
-      expect(body.msg).toBe("bad request");
-    });
+    return request(app)
+      .delete("/api/comments/notNumber")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
   });
 });
+
+// describe("GET /api/articles?topic=", () => {
+//   test("200: responds with array of articles all with the queried topic", () => {
+//     const topic = "mitch";
+//     return request(app)
+//       .get(`/api/articles?topic=${topic}`)
+//       .expect(200)
+//       .then(({ body }) => {
+//         expect(body.articles).toHaveLength(12);
+//         body.articles.forEach((article) => {
+//           expect(article.body).toBe(undefined);
+//           expect(article).toMatchObject({
+//             author: expect.any(String),
+//             title: expect.any(String),
+//             article_id: expect.any(Number),
+//             topic: topic,
+//             created_at: expect.any(String),
+//             votes: expect.any(Number),
+//             article_img_url: expect.any(String),
+//             comment_count: expect.any(String),
+//           });
+//         });
+//       });
+//   });
+//   test("200: responds with an empty array if queried with a topic which exists but there are no articles with that topic",() => {
+//     const topic = "paper";
+//     return request(app)
+//       .get(`/api/articles?topic=${topic}`)
+//       .expect(200)
+//       .then(({ body }) => {
+//         expect(body.articles).toEqual([]);
+//       });
+//   })
+//   test("400: responds with a not found error message if queried with a non-existent topic", () => {
+//     const topic = "scissors";
+//     return request(app)
+//       .get(`/api/articles?topic=${topic}`)
+//       .expect(200)
+//       .then(({ body }) => {
+//         expect(body.msg).toBe("not found");
+//       });
+//   })
+// });
