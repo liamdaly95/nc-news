@@ -6,7 +6,7 @@ exports.getComments = (req, res, next) => {
 
   Promise.all([selectComments(article_id), checkExists("articles", "article_id", article_id)])
     .then((resolvedPromises) => {
-      comments = resolvedPromises[0];
+      const comments = resolvedPromises[0];
       res.status(200).send({ comments });
     })
     .catch(next);
