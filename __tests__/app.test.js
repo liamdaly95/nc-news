@@ -4,7 +4,7 @@ const seed = require("../db/seeds/seed");
 const request = require("supertest");
 const { topicData, userData, articleData, commentData } = require("../db/data/test-data/index");
 const endpoints = require("../endpoints.json");
-const sorted = require("jest-sorted")
+const sorted = require("jest-sorted");
 
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
@@ -132,6 +132,57 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.articles).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: returns array of comments with given related article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(11);
+        body.comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            body: expect.any(String),
+            votes: expect.any(Number),
+            author: expect.any(String),
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+          });
+        });
+      });
+  });
+  test("200: the comments should be sorted by created_at in descending order", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .then(({ body }) => {
+        expect(body.comments).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+  test("200: responds with an empty array if the article_id exists but there are no comments for that article", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toEqual([]);
+      });
+  });
+  test("404: responds with an appropriate error message if the article_id does not exist", () => {
+    return request(app)
+      .get("/api/articles/200/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("400: responds with an appropriate error message if the article_id is invalid", () => {
+    return request(app)
+      .get("/api/articles/notanid/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
       });
   });
 });
