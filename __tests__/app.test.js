@@ -55,17 +55,17 @@ describe("GET /api/articles/:article_id", () => {
         });
       });
   });
-  test('200: responds with a comment count for the article', () => {
-    const article_id = "1"
+  test("200: responds with a comment count for the article", () => {
+    const article_id = "1";
     const comment_count = commentData.filter((comment) => {
-      return comment.article_id === Number(article_id)
-    }).length
+      return comment.article_id === Number(article_id);
+    }).length;
     return request(app)
-    .get(`/api/articles/${article_id}`)
-    .expect(200)
-    .then(({body}) => {
-      expect(body.article[0].comment_count).toBe(comment_count.toString());
-    })
+      .get(`/api/articles/${article_id}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article[0].comment_count).toBe(comment_count.toString());
+      });
   });
   test("400: sends appropriate status and error message when requested with a valid but non-existent id", () => {
     return request(app)
@@ -378,7 +378,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe("GET /api/articles?topic=", () => {
+describe("GET /api/articles? queries", () => {
   test("200: responds with array of articles all with the queried topic", () => {
     const topic = "mitch";
     return request(app)
@@ -401,7 +401,7 @@ describe("GET /api/articles?topic=", () => {
         });
       });
   });
-  test("200: responds with an empty array if queried with a topic which exists but there are no articles with that topic",() => {
+  test("200: responds with an empty array if queried with a topic which exists but there are no articles with that topic", () => {
     const topic = "paper";
     return request(app)
       .get(`/api/articles?topic=${topic}`)
@@ -409,7 +409,7 @@ describe("GET /api/articles?topic=", () => {
       .then(({ body }) => {
         expect(body.articles).toEqual([]);
       });
-  })
+  });
   test("404: responds with a not found error message if queried with a non-existent topic", () => {
     const topic = "scissors";
     return request(app)
@@ -418,5 +418,67 @@ describe("GET /api/articles?topic=", () => {
       .then(({ body }) => {
         expect(body.msg).toBe("not found");
       });
+  });
+  const validColumns = [
+    "author",
+    "article_id",
+    "topic",
+    "title",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+  for (let i = 0; i < validColumns.length; i++) {
+    test(`should be sorted by column ${validColumns[i]}`, () => {
+      const sort_by = validColumns[i];
+      return request(app)
+        .get(`/api/articles?sort_by=${sort_by}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSorted({ key: sort_by, descending: true, coerce: true });
+        });
+    });
+  }
+
+  test("400: should return a bad request error if queried with an invalid column", () => {
+    const sort_by = "aaabbbb";
+    return request(app)
+      .get(`/api/articles?sort_by=${sort_by}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  const orders = { ASC: false, DESC: true };
+  for (const key in orders) {
+    test(`should be sorted in ${key} order`, () => {
+      const order = key;
+      return request(app)
+        .get(`/api/articles?order=${order}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSorted({ key: "created_at", descending: orders[key] });
+        });
+    });
+  }
+
+  test("400: should return a bad request error if queried with an invalid column", () => {
+    const order = "aaabbbb";
+    return request(app)
+      .get("/api/articles?order=${order}")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("200: responds with array of articles with multiple queries", () => {
+    return request(app)
+    .get(`/api/articles?topic=cats&sort_by=article_id&order=ASC`)
+    .expect(200)
+    .then(({body}) => {
+      expect(body.articles).toBeSorted({key: "article_id", descending: false})
+      body.articles.forEach(article => expect(article.topic).toBe("cats"))
+    })
   })
 });

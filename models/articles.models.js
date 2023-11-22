@@ -1,3 +1,4 @@
+const format = require("pg-format");
 const db = require("../db/connection");
 
 exports.selectArticleById = (article_id) => {
@@ -16,22 +17,22 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic) => {
-  const values = []
+exports.selectArticles = (topic, sort_by, order) => {
+  const values = [];
   let queryString = `SELECT 
   a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, COUNT(comment_id) AS comment_count
-  FROM articles a LEFT JOIN comments c ON a.article_id = c.article_id `
-  if(topic){
-    values.push(topic)
-    queryString += `WHERE topic = $1`
+  FROM articles a LEFT JOIN comments c ON a.article_id = c.article_id `;
+  if (topic) {
+    values.push(topic);
+    queryString += `WHERE topic = $1`;
   }
   queryString += ` GROUP BY a.article_id
-  ORDER BY a.created_at DESC;`
-  return db
-    .query(queryString, values)
-    .then(({ rows: articles }) => {
-      return articles;
-    });
+  ORDER BY %I %s;`;
+  
+  const formattedQuery = format(queryString, sort_by, order)
+  return db.query(formattedQuery, values).then(({ rows: articles }) => {
+    return articles;
+  });
 };
 
 exports.updateVotes = (article_id, inc_votes) => {
