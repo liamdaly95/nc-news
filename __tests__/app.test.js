@@ -55,6 +55,18 @@ describe("GET /api/articles/:article_id", () => {
         });
       });
   });
+  test('200: responds with a comment count for the article', () => {
+    const article_id = "1"
+    const comment_count = commentData.filter((comment) => {
+      return comment.article_id === Number(article_id)
+    }).length
+    return request(app)
+    .get(`/api/articles/${article_id}`)
+    .expect(200)
+    .then(({body}) => {
+      expect(body.article[0].comment_count).toBe(comment_count.toString());
+    })
+  });
   test("400: sends appropriate status and error message when requested with a valid but non-existent id", () => {
     return request(app)
       .get("/api/articles/100")
