@@ -13,7 +13,7 @@ Instructions
 - clone the repo by entering the command "git clone https://github.com/liamdaly95/nc-news.git" into your terminal
 - setup the database by running "npm run setup-dbs"
 - three environment variable files need to be setup in the root directory. The first should be named ".env.development" and include the line "PGDATABASE=nc_news". The second should be named ".env.test" and include the line "PGDATABASE=nc_news_test". The third should be named ".env.production" and include the line "DATABASE_URL=postgres://bfpcrptu:qJ8iU6rmVEIFd-JRguU0KMxsetAx19ul@flora.db.elephantsql.com/bfpcrptu".
-- run "npm install jest" to allow you to run the tests
+- run "npm install" to install the relevant dependencies
 - run "npm test app" to run the tests for the various endpoints (the test database will automatically be seeded). These can be found in the app.test.js file within the __tests__ folder.
 - run "npm run seed" to seed the dev database.
 - run "npm start" to start the server and allow the dev database to be requested by user (e.g. through Insomnia)
