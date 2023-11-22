@@ -52,9 +52,21 @@ describe("GET /api/articles/:article_id", () => {
           votes: 100,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            comment_count: "11"
+            comment_count: expect.any(String)
         });
       });
+  });
+  test('200: responds with a comment count for the article', () => {
+    const article_id = "1"
+    const comment_count = commentData.filter((comment) => {
+      return comment.article_id === Number(article_id)
+    }).length
+    return request(app)
+    .get(`/api/articles/${article_id}`)
+    .expect(200)
+    .then(({body}) => {
+      expect(body.article[0].comment_count).toBe(comment_count.toString());
+    })
   });
   test("400: sends appropriate status and error message when requested with a valid but non-existent id", () => {
     return request(app)
