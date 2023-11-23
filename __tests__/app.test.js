@@ -36,13 +36,14 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
 describe("GET /api/articles/:article_id", () => {
   test("200: sends a single article to the client", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        expect(body.article[0]).toMatchObject({
+        expect(body.article).toMatchObject({
           article_id: 1,
           title: "Living in the shadow of a great man",
           topic: "mitch",
@@ -64,7 +65,7 @@ describe("GET /api/articles/:article_id", () => {
       .get(`/api/articles/${article_id}`)
       .expect(200)
       .then(({ body }) => {
-        expect(body.article[0].comment_count).toBe(comment_count.toString());
+        expect(body.article.comment_count).toBe(comment_count.toString());
       });
   });
   test("400: sends appropriate status and error message when requested with a valid but non-existent id", () => {
@@ -360,6 +361,7 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
 describe("GET /api/users", () => {
   test("200: should return array of all user objects", () => {
     return request(app)
@@ -489,7 +491,7 @@ describe("GET /api/users/:username", () => {
       .get("/api/users/butter_bridge")
       .expect(200)
       .then(({ body }) => {
-        expect(body.user[0]).toMatchObject({
+        expect(body.user).toMatchObject({
           username: 'butter_bridge',
           name: 'jonny',
           avatar_url:
@@ -507,3 +509,53 @@ describe("GET /api/users/:username", () => {
   });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: updates the current vote by incrementing the value provided in the request", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: -159 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          comment_id: 1,
+          votes: -143,
+        });
+      });
+  });
+  test("400: responds with a bad request error if inc_votes property is missing from request", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("400: responds with a bad request error if inc_votes value is not a number", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: "notNumber" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("400: responds with a bad request error if comment_id is not a number", () => {
+    return request(app)
+      .patch("/api/comments/notNumber")
+      .send({ inc_votes: 179 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("404: responds with a not found error if comment_id is valid but does not exist", () => {
+    return request(app)
+      .patch("/api/comments/200")
+      .send({ inc_votes: 179 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+});

@@ -9,11 +9,11 @@ exports.selectArticleById = (article_id) => {
       GROUP BY a.article_id;`,
       [article_id]
     )
-    .then(({ rows: article }) => {
-      if (!article.length) {
+    .then(({ rows: articles }) => {
+      if (!articles.length) {
         return Promise.reject({ status: 404, msg: "article not found" });
       }
-      return article;
+      return articles[0];
     });
 };
 
