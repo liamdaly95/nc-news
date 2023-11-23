@@ -112,7 +112,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toHaveLength(13);
+        expect(body.articles).toHaveLength(10);
         body.articles.forEach((article) => {
           expect(article.body).toBe(undefined);
           expect(article).toMatchObject({
@@ -387,7 +387,7 @@ describe("GET /api/articles? queries", () => {
       .get(`/api/articles?topic=${topic}`)
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toHaveLength(12);
+        expect(body.articles).toHaveLength(10);
         body.articles.forEach((article) => {
           expect(article.body).toBe(undefined);
           expect(article).toMatchObject({
@@ -474,13 +474,88 @@ describe("GET /api/articles? queries", () => {
         expect(body.msg).toBe("bad request");
       });
   });
-  test("200: responds with array of articles with multiple queries", () => {
+  test("should allow the client to speciify the limit of articles returned", () => {
+    const limit = 5;
     return request(app)
-      .get(`/api/articles?topic=cats&sort_by=article_id&order=ASC`)
+      .get(`/api/articles?limit=${limit}`)
       .expect(200)
       .then(({ body }) => {
+        expect(body.articles).toHaveLength(5);
+      });
+  });
+  test("the number of articles returned defaults to 10 if limit is not specified", () => {
+    return request(app)
+      .get(`/api/articles`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(10);
+      });
+  });
+  test("400: should return a bad request error if queried with an invalid limit", () => {
+    const limit = "notNumber"
+    return request(app)
+      .get(`/api/articles?limit=${limit}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("should allow the client to speciify the page of articles returned", () => {
+    const page = 2;
+    const article_ids = [8, 11, 7]
+    return request(app)
+      .get(`/api/articles?page=${page}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(3);
+        body.articles.forEach((article, index) => {
+          expect(article.article_id).toBe(article_ids[index]);
+        })
+      });
+  });
+  test("the page of articles returned defaults to 1 if page is not specified", () => {
+    const article_ids = [3,6,2,12,13,5,1,9,10,4]
+    return request(app)
+      .get(`/api/articles`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(10);
+        body.articles.forEach((article, index) => {
+          expect(article.article_id).toBe(article_ids[index]);
+        })
+      });
+  });
+  test("400: should return a bad request error if queried with an invalid page", () => {
+    const page = "notNumber"
+    return request(app)
+      .get(`/api/articles?page=${page}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test('should respond with a total_count property representing the total number of results if the limit was ignored', () => {
+    return request(app)
+    .get(`/api/articles?topic=mitch`)
+    .expect(200)
+    .then(({body}) => {
+      body.articles.forEach((article) => {
+        expect(article.total_count).toBe("12");
+      })
+    })
+  });
+  test("200: responds with array of articles with multiple queries", () => {
+    const article_ids = [4,6,7]
+    return request(app)
+      .get(`/api/articles?topic=mitch&sort_by=article_id&order=ASC&limit=3&page=2`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(3)
         expect(body.articles).toBeSorted({ key: "article_id", descending: false });
-        body.articles.forEach((article) => expect(article.topic).toBe("cats"));
+        body.articles.forEach((article,index) => {
+        expect(article.topic).toBe("mitch"),
+        expect(article.article_id).toBe(article_ids[index]),
+        expect(article.total_count).toBe("12")});
       });
   });
 });
@@ -566,7 +641,7 @@ describe("POST /api/articles/", () => {
       title: "new title for testing",
       body: "new body for testing",
       topic: "cats",
-      article_img_url: "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6"
+      article_img_url: "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6",
     };
     return request(app)
       .post("/api/articles")
@@ -579,8 +654,7 @@ describe("POST /api/articles/", () => {
           body: "new body for testing",
           topic: "cats",
           article_id: 14,
-          article_img_url:
-            "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6",
+          article_img_url: "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6",
           votes: 0,
           created_at: expect.any(String),
           comment_count: "0",
@@ -606,7 +680,7 @@ describe("POST /api/articles/", () => {
           topic: "cats",
           article_id: 14,
           article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           votes: 0,
           created_at: expect.any(String),
           comment_count: "0",
@@ -645,26 +719,28 @@ describe("POST /api/articles/", () => {
         expect(body.msg).toBe("not found");
       });
   });
-  const requests = {author: {
-    title: "new title for testing",
-    body: "new body for testing",
-    topic: "cats",
-  }, title :
-  {
-    author: "butter_bridge",
-    body: "new body for testing",
-    topic: "cats",
-  }, body: 
-  {
-    author: "butter_bridge",
-    title: "new title for testing",
-    topic: "cats",
-  }, topic:
-  {
-    author: "butter_bridge",
-    title: "new title for testing",
-    body: "new body for testing",
-  }}
+  const requests = {
+    author: {
+      title: "new title for testing",
+      body: "new body for testing",
+      topic: "cats",
+    },
+    title: {
+      author: "butter_bridge",
+      body: "new body for testing",
+      topic: "cats",
+    },
+    body: {
+      author: "butter_bridge",
+      title: "new title for testing",
+      topic: "cats",
+    },
+    topic: {
+      author: "butter_bridge",
+      title: "new title for testing",
+      body: "new body for testing",
+    },
+  };
   for (const key in requests) {
     test(`400: should return a bad request error when not passed ${key} field`, () => {
       const newArticle = requests[key];

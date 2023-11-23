@@ -17,19 +17,18 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic, sort_by, order) => {
+exports.selectArticles = (topic, sort_by, order, limit, page) => {
   const values = [];
-  let queryString = `SELECT 
-  a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, COUNT(comment_id) AS comment_count
-  FROM articles a LEFT JOIN comments c ON a.article_id = c.article_id `;
+  const offset = limit * (page - 1);
+  let queryString = `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, COUNT(comment_id) AS comment_count, COUNT(*) OVER() AS total_count FROM articles a LEFT JOIN comments c ON a.article_id = c.article_id`;
   if (topic) {
     values.push(topic);
-    queryString += `WHERE topic = $1`;
+    queryString += ` WHERE topic = $1`;
   }
   queryString += ` GROUP BY a.article_id
-  ORDER BY %I %s;`;
+  ORDER BY %I %s LIMIT %s OFFSET %s;`;
 
-  const formattedQuery = format(queryString, sort_by, order);
+  const formattedQuery = format(queryString, sort_by, order, limit, offset);
   return db.query(formattedQuery, values).then(({ rows: articles }) => {
     return articles;
   });
@@ -55,6 +54,6 @@ exports.insertArticle = (values) => {
     )
     .then(({ rows: articles }) => {
       const { article_id } = articles[0];
-      return this.selectArticleById(article_id)
-    })
+      return this.selectArticleById(article_id);
+    });
 };
