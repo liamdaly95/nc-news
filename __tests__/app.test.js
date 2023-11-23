@@ -476,13 +476,13 @@ describe("GET /api/articles? queries", () => {
   });
   test("200: responds with array of articles with multiple queries", () => {
     return request(app)
-    .get(`/api/articles?topic=cats&sort_by=article_id&order=ASC`)
-    .expect(200)
-    .then(({body}) => {
-      expect(body.articles).toBeSorted({key: "article_id", descending: false})
-      body.articles.forEach(article => expect(article.topic).toBe("cats"))
-    })
-  })
+      .get(`/api/articles?topic=cats&sort_by=article_id&order=ASC`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSorted({ key: "article_id", descending: false });
+        body.articles.forEach((article) => expect(article.topic).toBe("cats"));
+      });
+  });
 });
 
 describe("GET /api/users/:username", () => {
@@ -492,10 +492,9 @@ describe("GET /api/users/:username", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.user).toMatchObject({
-          username: 'butter_bridge',
-          name: 'jonny',
-          avatar_url:
-            'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'  
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
         });
       });
   });
@@ -558,4 +557,124 @@ describe("PATCH /api/comments/:comment_id", () => {
         expect(body.msg).toBe("not found");
       });
   });
+});
+
+describe("POST /api/articles/", () => {
+  test("201: posts a new article and sends the article back to the client", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "new title for testing",
+      body: "new body for testing",
+      topic: "cats",
+      article_img_url: "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6"
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "butter_bridge",
+          title: "new title for testing",
+          body: "new body for testing",
+          topic: "cats",
+          article_id: 14,
+          article_img_url:
+            "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6",
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: "0",
+        });
+      });
+  });
+  test("the article_img_url defaults if not passed in the request", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "new title for testing",
+      body: "new body for testing",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          author: "butter_bridge",
+          title: "new title for testing",
+          body: "new body for testing",
+          topic: "cats",
+          article_id: 14,
+          article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: "0",
+        });
+      });
+  });
+  test("404: should return a not found error when passed a topic that does not exist", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "new title for testing",
+      body: "new body for testing",
+      topic: "dogs",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("404: should return a not found error when passed an author that does not exist", () => {
+    const newArticle = {
+      author: "liam_daly",
+      title: "new title for testing",
+      body: "new body for testing",
+      topic: "cats",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  const requests = {author: {
+    title: "new title for testing",
+    body: "new body for testing",
+    topic: "cats",
+  }, title :
+  {
+    author: "butter_bridge",
+    body: "new body for testing",
+    topic: "cats",
+  }, body: 
+  {
+    author: "butter_bridge",
+    title: "new title for testing",
+    topic: "cats",
+  }, topic:
+  {
+    author: "butter_bridge",
+    title: "new title for testing",
+    body: "new body for testing",
+  }}
+  for (const key in requests) {
+    test(`400: should return a bad request error when not passed ${key} field`, () => {
+      const newArticle = requests[key];
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+  }
 });

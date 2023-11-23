@@ -28,8 +28,8 @@ exports.selectArticles = (topic, sort_by, order) => {
   }
   queryString += ` GROUP BY a.article_id
   ORDER BY %I %s;`;
-  
-  const formattedQuery = format(queryString, sort_by, order)
+
+  const formattedQuery = format(queryString, sort_by, order);
   return db.query(formattedQuery, values).then(({ rows: articles }) => {
     return articles;
   });
@@ -45,4 +45,16 @@ exports.updateVotes = (article_id, inc_votes) => {
       }
       return articles[0];
     });
+};
+
+exports.insertArticle = (values) => {
+  return db
+    .query(
+      `INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1,$2,$3,$4,$5) RETURNING *;`,
+      values
+    )
+    .then(({ rows: articles }) => {
+      const { article_id } = articles[0];
+      return this.selectArticleById(article_id)
+    })
 };
