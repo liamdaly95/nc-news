@@ -154,7 +154,7 @@ describe("GET /api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .then(({ body }) => {
-        expect(body.comments).toHaveLength(11);
+        expect(body.comments).toHaveLength(10);
         body.comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -196,6 +196,76 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
+      });
+  });
+  test("should allow the client to speciify the limit of comments returned", () => {
+    const limit = 5;
+    return request(app)
+      .get(`/api/articles/1/comments?limit=${limit}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(5);
+      });
+  });
+  test("the number of comments returned defaults to 10 if limit is not specified", () => {
+    return request(app)
+      .get(`/api/articles/1/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(10);
+      });
+  });
+  test("400: should return a bad request error if queried with an invalid limit", () => {
+    const limit = "notNumber";
+    return request(app)
+      .get(`/api/articles/1/comments?limit=${limit}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("should allow the client to speciify the page of comments returned", () => {
+    const page = 2;
+    const comment_ids = [9];
+    return request(app)
+      .get(`/api/articles/1/comments?page=${page}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(1);
+        body.comments.forEach((comment, index) => {
+          expect(comment.comment_id).toBe(comment_ids[index]);
+        });
+      });
+  });
+  test("the page of comments returned defaults to 1 if page is not specified", () => {
+    const comment_ids = [5, 2, 18, 13, 7, 8, 6, 12, 3, 4];
+    return request(app)
+      .get(`/api/articles/1/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(10);
+        body.comments.forEach((comment, index) => {
+          expect(comment.comment_id).toBe(comment_ids[index]);
+        });
+      });
+  });
+  test("400: should return a bad request error if queried with an invalid page", () => {
+    const page = "notNumber";
+    return request(app)
+      .get(`/api/articles/1/comments?page=${page}`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("should respond with a total_count property representing the total number of results if the limit was ignored", () => {
+    return request(app)
+      .get(`/api/articles/1/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        body.comments.forEach((comment) => {
+          expect(comment.total_count).toBe("11");
+        });
       });
   });
 });
@@ -492,7 +562,7 @@ describe("GET /api/articles? queries", () => {
       });
   });
   test("400: should return a bad request error if queried with an invalid limit", () => {
-    const limit = "notNumber"
+    const limit = "notNumber";
     return request(app)
       .get(`/api/articles?limit=${limit}`)
       .expect(400)
@@ -502,7 +572,7 @@ describe("GET /api/articles? queries", () => {
   });
   test("should allow the client to speciify the page of articles returned", () => {
     const page = 2;
-    const article_ids = [8, 11, 7]
+    const article_ids = [8, 11, 7];
     return request(app)
       .get(`/api/articles?page=${page}`)
       .expect(200)
@@ -510,11 +580,11 @@ describe("GET /api/articles? queries", () => {
         expect(body.articles).toHaveLength(3);
         body.articles.forEach((article, index) => {
           expect(article.article_id).toBe(article_ids[index]);
-        })
+        });
       });
   });
   test("the page of articles returned defaults to 1 if page is not specified", () => {
-    const article_ids = [3,6,2,12,13,5,1,9,10,4]
+    const article_ids = [3, 6, 2, 12, 13, 5, 1, 9, 10, 4];
     return request(app)
       .get(`/api/articles`)
       .expect(200)
@@ -522,11 +592,11 @@ describe("GET /api/articles? queries", () => {
         expect(body.articles).toHaveLength(10);
         body.articles.forEach((article, index) => {
           expect(article.article_id).toBe(article_ids[index]);
-        })
+        });
       });
   });
   test("400: should return a bad request error if queried with an invalid page", () => {
-    const page = "notNumber"
+    const page = "notNumber";
     return request(app)
       .get(`/api/articles?page=${page}`)
       .expect(400)
@@ -534,28 +604,29 @@ describe("GET /api/articles? queries", () => {
         expect(body.msg).toBe("bad request");
       });
   });
-  test('should respond with a total_count property representing the total number of results if the limit was ignored', () => {
+  test("should respond with a total_count property representing the total number of results if the limit was ignored", () => {
     return request(app)
-    .get(`/api/articles?topic=mitch`)
-    .expect(200)
-    .then(({body}) => {
-      body.articles.forEach((article) => {
-        expect(article.total_count).toBe("12");
-      })
-    })
+      .get(`/api/articles?topic=mitch`)
+      .expect(200)
+      .then(({ body }) => {
+        body.articles.forEach((article) => {
+          expect(article.total_count).toBe("12");
+        });
+      });
   });
   test("200: responds with array of articles with multiple queries", () => {
-    const article_ids = [4,6,7]
+    const article_ids = [4, 6, 7];
     return request(app)
       .get(`/api/articles?topic=mitch&sort_by=article_id&order=ASC&limit=3&page=2`)
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toHaveLength(3)
+        expect(body.articles).toHaveLength(3);
         expect(body.articles).toBeSorted({ key: "article_id", descending: false });
-        body.articles.forEach((article,index) => {
-        expect(article.topic).toBe("mitch"),
-        expect(article.article_id).toBe(article_ids[index]),
-        expect(article.total_count).toBe("12")});
+        body.articles.forEach((article, index) => {
+          expect(article.topic).toBe("mitch"),
+            expect(article.article_id).toBe(article_ids[index]),
+            expect(article.total_count).toBe("12");
+        });
       });
   });
 });

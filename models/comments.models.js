@@ -1,8 +1,9 @@
 const db = require("../db/connection");
 
-exports.selectComments = (article_id) => {
+exports.selectComments = (article_id, limit, page) => {
+  const offset = limit * (page -1)
   return db
-    .query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [article_id])
+    .query(`SELECT *, COUNT(*) OVER() AS total_count FROM comments WHERE article_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`, [article_id, limit, offset])
     .then(({ rows: comments }) => {
       return comments;
     });
