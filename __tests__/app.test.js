@@ -441,7 +441,7 @@ describe("GET /api/articles? queries", () => {
     });
   }
 
-  test("400: should return a bad request error if queried with an invalid column", () => {
+  test("400: should return a bad request error if queried with an invalid column to sort on", () => {
     const sort_by = "aaabbbb";
     return request(app)
       .get(`/api/articles?sort_by=${sort_by}`)
@@ -463,10 +463,10 @@ describe("GET /api/articles? queries", () => {
     });
   }
 
-  test("400: should return a bad request error if queried with an invalid column", () => {
+  test("400: should return a bad request error if queried with an invalid order", () => {
     const order = "aaabbbb";
     return request(app)
-      .get("/api/articles?order=${order}")
+      .get(`/api/articles?order=${order}`)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
@@ -482,3 +482,28 @@ describe("GET /api/articles? queries", () => {
     })
   })
 });
+
+describe("GET /api/users/:username", () => {
+  test("200: sends a single user to the client", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.user[0]).toMatchObject({
+          username: 'butter_bridge',
+          name: 'jonny',
+          avatar_url:
+            'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'  
+        });
+      });
+  });
+  test("400: sends appropriate status and error message when requested with a non-existent username", () => {
+    return request(app)
+      .get("/api/users/liam_daly")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("user not found");
+      });
+  });
+});
+
