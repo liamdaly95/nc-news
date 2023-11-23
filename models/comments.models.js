@@ -14,8 +14,8 @@ exports.insertComment = (body, author, article_id) => {
 
   return db
     .query(`INSERT INTO comments (body, author, article_id, votes) VALUES ($1, $2, $3, $4) RETURNING *;`, values)
-    .then(({ rows: comment }) => {
-      return comment[0];
+    .then(({ rows: comments }) => {
+      return comments[0];
     });
 };
 

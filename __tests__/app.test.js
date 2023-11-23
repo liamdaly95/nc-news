@@ -825,3 +825,35 @@ describe("POST /api/articles/", () => {
     });
   }
 });
+
+describe("POST /api/topics/", () => {
+  test("201: posts a new topic and sends the topic back to the client", () => {
+    const newtopic = {
+      description: "beats paper",
+      slug: "scissors",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newtopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topic).toMatchObject({
+          description: "beats paper",
+          slug: "scissors",
+        });
+      });
+  });
+    test(`400: should return a bad request error when not passed slug field`, () => {
+      const newTopic = {
+        description: "beats paper"
+      };
+      return request(app)
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+  
+});
