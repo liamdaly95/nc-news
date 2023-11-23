@@ -57,3 +57,21 @@ exports.insertArticle = (values) => {
       return this.selectArticleById(article_id);
     });
 };
+
+exports.removeArticle = (article_id) => {
+  return Promise.all([
+    db.query(`DELETE FROM comments WHERE article_id = $1 RETURNING *;`, [article_id]),
+    article_id,
+  ]).then((resolvedPromises) => {
+    const comments = resolvedPromises[0].rows;
+    const article_id = resolvedPromises[1];
+    return Promise.all([
+      db.query(`DELETE FROM articles WHERE article_id = $1 RETURNING *;`, [article_id]),
+      comments,
+    ]).then((resolvedPromises) => {
+      const article = resolvedPromises[0].rows[0];
+      const comments = resolvedPromises[1];
+      return !article ? Promise.reject({ status: 404, msg: "not found" }) : { article, comments };
+    });
+  });
+};

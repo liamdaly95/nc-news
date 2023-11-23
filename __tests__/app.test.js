@@ -857,3 +857,27 @@ describe("POST /api/topics/", () => {
     });
   
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: deletes the article with the associated article_id and its comments", () => {
+    return request(app)
+    .delete("/api/articles/1")
+    .expect(204)
+  });
+  test("404: returns a not found error if article_id is valid but does not exist", () => {
+    return request(app)
+      .delete("/api/articles/100")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("400: returns a bad request error if article_id is not valid", () => {
+    return request(app)
+      .delete("/api/articles/notNumber")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});
