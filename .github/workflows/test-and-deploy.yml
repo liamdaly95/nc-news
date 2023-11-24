@@ -1,0 +1,18 @@
+name: test and deploy
+
+on:
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    test-utils:
+        runs-on: unbuntu-latest
+        steps:
+            - name: Checkout and clone repo
+              uses: actions/checkout@v4.1.1
+            - name: Install dependencies
+              run: npm install
+            - name: Test utils
+              run: npm run test utils
