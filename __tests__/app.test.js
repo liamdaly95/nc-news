@@ -629,6 +629,46 @@ describe("GET /api/articles? queries", () => {
         });
       });
   });
+  test("200: responds with array of articles all with the queried author", () => {
+    const author = "butter_bridge";
+    return request(app)
+      .get(`/api/articles?author=${author}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(4);
+        body.articles.forEach((article) => {
+          expect(article.body).toBe(undefined);
+          expect(article).toMatchObject({
+            author: author,
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(String),
+          });
+        });
+      });
+  });
+  test("200: responds with an empty array if queried with an author which exists but there are no articles with that author", () => {
+    const author = "lurker";
+    return request(app)
+      .get(`/api/articles?author=${author}`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  });
+  test("404: responds with a not found error message if queried with a non-existent author", () => {
+    const author = "fred";
+    return request(app)
+      .get(`/api/articles?author=${author}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
 });
 
 describe("GET /api/users/:username", () => {
