@@ -30,6 +30,7 @@ exports.selectArticles = (topic, sort_by, order, limit, page) => {
 
   const formattedQuery = format(queryString, sort_by, order, limit, offset);
   return db.query(formattedQuery, values).then(({ rows: articles }) => {
+    console.log(articles);
     return articles;
   });
 };

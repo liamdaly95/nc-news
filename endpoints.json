@@ -21,75 +21,89 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["topic", "sort_by", "order", "limit", "page"],
     "exampleResponse": {
       "articles": [
         {
-          "title": "Seafood substitutions are increasing",
+          "author": "grumpy19",
+          "title": "The Notorious MSG’s Unlikely Formula For Success",
+          "article_id": 34,
           "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": "2018-05-30T15:59:13.341Z",
+          "created_at": "2020-11-22T11:13:00.000Z",
           "votes": 0,
-          "comment_count": 6
+          "article_img_url": "https://images.pexels.com/photos/2403392/pexels-photo-2403392.jpeg?w=700&h=700",
+          "comment_count": "11",
+          "total_count": "37"
         }
       ]
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves an array of one article",
+    "description": "serves an object of one article",
     "queries": [],
     "exampleResponse": {
       "article": [
         {
           "article_id": 1,
-          "title": "Living in the shadow of a great man",
-          "topic": "mitch",
-          "author": "butter_bridge",
-          "body": "I find this existence challenging",
-          "created_at": "2020-07-09T20:11:00.000Z",
-          "votes": 100,
-          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          "title": "Running a Node App",
+          "topic": "coding",
+          "author": "jessjelly",
+          "body": "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+          "created_at": "2020-11-07T06:03:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?w=700&h=700",
+          "comment_count": "8"
         }
       ]
     }
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of comments all with the same article_id",
-    "queries": [],
+    "queries": ["limit", "page"],
     "exampleResponse": {
-      "comment_id": 5,
-      "body": "I hate streaming noses",
-      "article_id": 1,
-      "author": "icellusedkars",
-      "votes": 0,
-      "created_at": "2020-11-03T21:00:00.000Z"
+      "comments": [
+        {
+          "comment_id": 33,
+          "body": "Explicabo perspiciatis voluptatem sunt tenetur maxime aut. Optio totam modi. Perspiciatis et quia.",
+          "article_id": 1,
+          "author": "cooljmessy",
+          "votes": 4,
+          "created_at": "2019-12-31T21:21:00.000Z",
+          "total_count": "8"
+        }
+      ]
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "adds an a new comment to the comments table, returning that comment",
+    "description": "adds a new comment to the comments table with article_id matching the passed parameter, returning that comment",
     "queries": [],
+    "requestBodyFormat": { "body": "this is a new well thought out comment", "username": "butter_bridge" },
     "exampleResponse": {
-      "comment_id": 19,
-      "body": "this is a new well thought out comment",
-      "article_id": 1,
-      "author": "butter_bridge",
-      "votes": 0,
-      "created_at": "2023-11-21T14:39:47.811Z"
+      "comment": {
+        "comment_id": 19,
+        "body": "this is a new well thought out comment",
+        "article_id": 1,
+        "author": "butter_bridge",
+        "votes": 0,
+        "created_at": "2023-11-21T14:39:47.811Z"
+      }
     }
   },
   "PATCH /api/articles/:article_id": {
     "description": "increments the votes for a sepcific article, returning that article",
     "queries": [],
+    "requestBodyFormat": { "inc_votes": 1 },
     "exampleResponse": {
-      "article_id": 1,
-      "title": "Living in the shadow of a great man",
-      "topic": "mitch",
-      "author": "butter_bridge",
-      "body": "I find this existence challenging",
-      "created_at": "2020-07-09T20:11:00.000Z",
-      "votes": -79,
-      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      "article": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": -79,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
     }
   },
   "DELETE /api/comments/:comment_id": {
@@ -101,13 +115,82 @@
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
-      "topics": [
+      "users": [
         {
-          "username": "butter_bridge",
-          "name": "jonny",
-          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+          "username": "tickle122",
+          "name": "Tom Tickle",
+          "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/d/d6/Mr-Tickle-9a.png/revision/latest?cb=20180127221953"
         }
       ]
     }
+  },
+  "GET /api/users/:username": {
+    "description": "serves an object of one user matching the username parameter provided",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "tickle122",
+        "name": "Tom Tickle",
+        "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/d/d6/Mr-Tickle-9a.png/revision/latest?cb=20180127221953"
+      }
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "increments the votes for a sepcific comment, returning that comment",
+    "queries": [],
+    "requestBodyFormat": { "inc_votes": 1 },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "body": "Itaque quisquam est similique et est perspiciatis reprehenderit voluptatem autem. Voluptatem accusantium eius error adipisci quibusdam doloribus.",
+        "article_id": 18,
+        "author": "tickle122",
+        "votes": 1,
+        "created_at": "2020-05-21T22:19:00.000Z"
+      }
+    }
+  },
+  "POST /api/articles/": {
+    "description": "adds an a new article to the articles table, returning that article",
+    "queries": [],
+    "requestBodyFormat": {
+      "author": "butter_bridge",
+      "title": "new title for testing",
+      "body": "new body for testing",
+      "topic": "cats",
+      "article_img_url": "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6"
+    },
+    "exampleResponse": {
+      "article": {
+        "author": "butter_bridge",
+        "title": "new title for testing",
+        "body": "new body for testing",
+        "topic": "cats",
+        "article_id": 14,
+        "article_img_url": "https://images.app.goo.gl/SUpRYjyyUSdsLvaz6",
+        "votes": 0,
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "comment_count": "0"
+      }
+    }
+  },
+  "POST /api/topics/": {
+    "description": "adds a new topic to the topics table, returning that topic",
+    "queries": [],
+    "requestBodyFormat": {
+      "description": "beats paper",
+      "slug": "scissors"
+    },
+    "exampleResponse": {
+      "topic": {
+        "description": "beats paper",
+        "slug": "scissors"
+      }
+    }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes an article which matches the article_id provided",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
