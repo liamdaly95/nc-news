@@ -17,20 +17,23 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (topic, sort_by, order, limit, page) => {
+exports.selectArticles = (topic, author, sort_by, order, limit, page) => {
   const values = [];
   const offset = limit * (page - 1);
   let queryString = `SELECT a.author, a.title, a.article_id, a.topic, a.created_at, a.votes, a.article_img_url, COUNT(comment_id) AS comment_count, COUNT(*) OVER() AS total_count FROM articles a LEFT JOIN comments c ON a.article_id = c.article_id`;
   if (topic) {
     values.push(topic);
-    queryString += ` WHERE topic = $1`;
+    queryString += ` WHERE topic = $${values.length}`;
+  }
+  if (author) {
+    values.push(author);
+    queryString += ` WHERE a.author = $${values.length}`;
   }
   queryString += ` GROUP BY a.article_id
   ORDER BY %I %s LIMIT %s OFFSET %s;`;
-
+  
   const formattedQuery = format(queryString, sort_by, order, limit, offset);
   return db.query(formattedQuery, values).then(({ rows: articles }) => {
-    console.log(articles);
     return articles;
   });
 };

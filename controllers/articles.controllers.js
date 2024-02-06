@@ -11,10 +11,13 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { topic, sort_by = "created_at", order = "DESC", limit = 10, page = 1 } = req.query;
-  const articlesPromises = [selectArticles(topic, sort_by, order, limit, page)];
+  const { topic, author, sort_by = "created_at", order = "DESC", limit = 10, page = 1 } = req.query;
+  const articlesPromises = [selectArticles(topic, author, sort_by, order, limit, page)];
   if (topic) {
     articlesPromises.push(checkExists("topics", "slug", topic));
+  }
+  if(author){
+    articlesPromises.push(checkExists("users", "username", author));
   }
   Promise.all(articlesPromises)
     .then((resolvedPromises) => {
