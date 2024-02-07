@@ -11,6 +11,6 @@ apiRouter.use("/comments", commentsRouter)
 apiRouter.use("/articles",articlesRouter)
 
 
-apiRouter.route("/").get(getDocumentation);
+apiRouter.route("/endpoints").get(getDocumentation);
 
 module.exports = apiRouter;
