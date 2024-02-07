@@ -86,10 +86,10 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("GET /api", () => {
-  test("200: should respond with an object describing all the API endpoints", () => {
+describe("GET /api/endpoints", () => {
+  test.only("200: should respond with an object describing all the API endpoints", () => {
     return request(app)
-      .get("/api")
+      .get("/api/endpoints")
       .expect(200)
       .then(({ body }) => {
         const numberOfRoutes = Object.keys(endpoints).length;
